@@ -1,5 +1,5 @@
 var svgWidth = 960;
-var svgHeight = 500;
+var svgHeight = 960;
 
 var margin = {
   top: 20,
@@ -23,22 +23,22 @@ var chartGroup = svg.append("g")
 // Import Data
 d3.csv("data.csv")
   .then(function(d3times) {
-
     // Step 1: Parse Data/Cast as numbers
     // ==============================
     d3times.forEach(function(data) {
       data.age = +data.age;
       data.smokes = +data.smokes;
+      abbr = data.abbr;
     });
 
     // Step 2: Create scale functions
     // ==============================
     var xLinearScale = d3.scaleLinear()
-      .domain([20, d3.max(d3times, d => d.age)])
+      .domain([30, d3.max(d3times, d => d.age)])
       .range([0, width]);
 
     var yLinearScale = d3.scaleLinear()
-      .domain([0, d3.max(d3times, d => d.smokes)])
+      .domain([9, d3.max(d3times, d => d.smokes)])
       .range([height, 0]);
 
     // Step 3: Create axis functions
@@ -64,32 +64,19 @@ d3.csv("data.csv")
     .attr("cx", d => xLinearScale(d.age))
     .attr("cy", d => yLinearScale(d.smokes))
     .attr("r", "15")
-    .attr("fill", "blue")
-    .attr("opacity", ".75");
-
-    // Step 6: Initialize tool tip
-    // ==============================
-    var toolTip = d3.tip()
-      .attr("class", "tooltip")
-      .offset([80, -60])
-      .html(function(d) {
-        return (`${d.state}<br>Median Age: ${d.age}<br>% Smokes: ${d.smokes}`);
-      });
-
-    // Step 7: Create tooltip in the chart
-    // ==============================
-    chartGroup.call(toolTip);
-
-    // Step 8: Create event listeners to display and hide the tooltip
-    // ==============================
-    circlesGroup.on("click", function(data) {
-      toolTip.show(data, this);
-    })
-      // onmouseout event
-      .on("mouseout", function(data, index) {
-        toolTip.hide(data);
-      });
-
+    .attr("fill", "pink")
+    .attr("opacity", ".75")
+    
+    chartGroup.selectAll("state abbr")
+     .data(d3times)
+     .enter()
+     .append("text")
+     .classed("stateText", true)
+     .attr("x", d => xLinearScale(d.age))
+     .attr("y", d => yLinearScale(d.smokes)+6.5)
+     .text(function(d) {return (`${d.abbr}`)
+     });
+    
     // Create axes labels
     chartGroup.append("text")
       .attr("transform", "rotate(-90)")
